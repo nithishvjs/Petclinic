@@ -36,8 +36,8 @@ steps:
   # Step 4: Copy the JAR file to the artifact staging directory
   - script: |
       mkdir -p $(Build.ArtifactStagingDirectory)
-      cp target/*.jar $(Build.ArtifactStagingDirectory)/ || echo "No JAR found"
-    displayName: 'Copy JAR to Staging Directory'
+      cp target/*.war $(Build.ArtifactStagingDirectory)/ || echo "No WAR found"
+    displayName: 'Copy WAR to Staging Directory'
 
   # Step 5: Publish the JAR file as a pipeline artifact
   - task: PublishPipelineArtifact@1
