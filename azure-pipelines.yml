@@ -20,3 +20,14 @@ steps:
       testResultsFiles: '**/target/surefire-reports/TEST-*.xml'
       testRunTitle: 'Maven Test Results'
 
+  - script: |
+      mkdir -p $(Build.ArtifactStagingDirectory)
+      cp target/*.jar $(Build.ArtifactStagingDirectory)/
+    displayName: 'Copy JAR to staging directory'
+
+  - task: PublishPipelineArtifact@1
+    inputs:
+      targetPath: '$(Build.ArtifactStagingDirectory)'
+      artifact: 'jar-artifact'
+
+
