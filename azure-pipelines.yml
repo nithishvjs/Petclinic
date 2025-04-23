@@ -3,6 +3,14 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
+resources:
+  repositories:
+    - repository: self
+      type: github
+      name: nithishvjs/Petclinic
+      ref: main
+      endpoint: nithishvjs  # 👈 Replace this with your GitHub service connection name
+
 trigger:
   - main
 
@@ -10,24 +18,29 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
+  # Step 1: Build with Maven
   - task: Maven@3
     inputs:
       mavenPomFile: 'pom.xml'
       goals: 'clean install test'
+    displayName: 'Maven Build and Test'
 
+  # Step 2: Publish Test Results to Azure DevOps
   - task: PublishTestResults@2
     inputs:
       testResultsFiles: '**/target/surefire-reports/TEST-*.xml'
       testRunTitle: 'Maven Test Results'
+    displayName: 'Publish Test Results'
 
+  # Step 3: Copy the JAR file to the artifact staging directory
   - script: |
       mkdir -p $(Build.ArtifactStagingDirectory)
       cp target/*.jar $(Build.ArtifactStagingDirectory)/
-    displayName: 'Copy JAR to staging directory'
+    displayName: 'Copy JAR to Staging Directory'
 
+  # Step 4: Publish the JAR file as a pipeline artifact
   - task: PublishPipelineArtifact@1
     inputs:
       targetPath: '$(Build.ArtifactStagingDirectory)'
       artifact: 'jar-artifact'
-
-
+    displayName: 'Publish JAR Artifact'
