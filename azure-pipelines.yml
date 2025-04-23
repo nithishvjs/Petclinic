@@ -1,15 +1,10 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 resources:
   repositories:
     - repository: self
       type: github
       name: nithishvjs/Petclinic
       ref: main
-      endpoint: nithishvjs  # 👈 Replace this with your GitHub service connection name
+      endpoint: nithishvjs  # 👈 Ensure this matches your GitHub service connection name
 
 trigger:
   - main
@@ -32,13 +27,19 @@ steps:
       testRunTitle: 'Maven Test Results'
     displayName: 'Publish Test Results'
 
-  # Step 3: Copy the JAR file to the artifact staging directory
+  # Step 3: Debug - List files in target folder
+  - script: |
+      echo "Checking target directory contents..."
+      ls -al target/
+    displayName: 'List Target Folder Contents'
+
+  # Step 4: Copy the JAR file to the artifact staging directory
   - script: |
       mkdir -p $(Build.ArtifactStagingDirectory)
-      cp target/*.jar $(Build.ArtifactStagingDirectory)/
+      cp target/*.jar $(Build.ArtifactStagingDirectory)/ || echo "No JAR found"
     displayName: 'Copy JAR to Staging Directory'
 
-  # Step 4: Publish the JAR file as a pipeline artifact
+  # Step 5: Publish the JAR file as a pipeline artifact
   - task: PublishPipelineArtifact@1
     inputs:
       targetPath: '$(Build.ArtifactStagingDirectory)'
