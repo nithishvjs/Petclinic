@@ -15,6 +15,7 @@ steps:
   # Copy WAR to staging directory
   - task: CopyFiles@2
     inputs:
+      sourceFolder: '$(System.DefaultWorkingDirectory)'
       contents: '**/target/*.war'
       targetFolder: '$(Build.ArtifactStagingDirectory)'
     displayName: 'Copy WAR to staging'
@@ -23,7 +24,7 @@ steps:
   - task: CopyFilesOverSSH@0
     inputs:
       sshEndpoint: 'Tomcat-SSH-Service'
-      sourceFolder: '$(Build.ArtifactStagingDirectory)'
+      sourceFolder: '$(System.DefaultWorkingDirectory)'
       contents: '*.war'
       targetFolder: '/opt/tomcat/webapps'
     displayName: 'Copy WAR to Tomcat webapps'
