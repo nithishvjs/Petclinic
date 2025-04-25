@@ -5,14 +5,17 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-  # Build WAR
   - task: Maven@3
     inputs:
       mavenPomFile: 'pom.xml'
       goals: 'clean package'
     displayName: 'Build WAR with Maven'
 
-  # Copy WAR to staging directory
+  - script: |
+      echo "Contents of target folder:"
+      ls -al $(System.DefaultWorkingDirectory)/**/target/
+    displayName: '🔍 Check target contents'
+
   - task: CopyFiles@2
     inputs:
       sourceFolder: '$(System.DefaultWorkingDirectory)'
@@ -20,7 +23,11 @@ steps:
       targetFolder: '$(Build.ArtifactStagingDirectory)'
     displayName: 'Copy WAR to staging'
 
-  # Deploy WAR to Tomcat server via SSH
+  - script: |
+      echo "Contents of artifact staging:"
+      ls -al $(Build.ArtifactStagingDirectory)
+    displayName: '🔍 Check staging contents'
+
   - task: CopyFilesOverSSH@0
     inputs:
       sshEndpoint: 'Tomcat-SSH-Service'
@@ -29,7 +36,6 @@ steps:
       targetFolder: '/opt/tomcat/webapps'
     displayName: 'Copy WAR to Tomcat webapps'
 
-  # Restart Tomcat
   - task: SSH@0
     inputs:
       sshEndpoint: 'Tomcat-SSH-Service'
