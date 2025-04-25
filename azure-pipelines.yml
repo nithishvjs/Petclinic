@@ -1,11 +1,3 @@
-resources:
-  repositories:
-    - repository: self
-      type: github
-      name: nithishvjs/Petclinic
-      ref: main
-      endpoint: nithishvjs  # 👈 Ensure this matches your GitHub service connection name
-
 trigger:
   - main
 
@@ -13,35 +5,36 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-  # Step 1: Build with Maven
+  # Build WAR
   - task: Maven@3
     inputs:
       mavenPomFile: 'pom.xml'
-      goals: 'clean install test'
-    displayName: 'Maven Build and Test'
+      goals: 'clean package'
+    displayName: 'Build WAR with Maven'
 
-  # Step 2: Publish Test Results to Azure DevOps
-  - task: PublishTestResults@2
+  # Copy WAR to staging directory
+  - task: CopyFiles@2
     inputs:
-      testResultsFiles: '**/target/surefire-reports/TEST-*.xml'
-      testRunTitle: 'Maven Test Results'
-    displayName: 'Publish Test Results'
+      contents: '**/target/*.war'
+      targetFolder: '$(Build.ArtifactStagingDirectory)'
+    displayName: 'Copy WAR to staging'
 
-  # Step 3: Debug - List files in target folder
-  - script: |
-      echo "Checking target directory contents..."
-      ls -al target/
-    displayName: 'List Target Folder Contents'
-
-  # Step 4: Copy the JAR file to the artifact staging directory
-  - script: |
-      mkdir -p $(Build.ArtifactStagingDirectory)
-      cp target/*.war $(Build.ArtifactStagingDirectory)/ || echo "No WAR found"
-    displayName: 'Copy WAR to Staging Directory'
-
-  # Step 5: Publish the JAR file as a pipeline artifact
-  - task: PublishPipelineArtifact@1
+  # Deploy WAR to Tomcat server via SSH
+  - task: CopyFilesOverSSH@0
     inputs:
-      targetPath: '$(Build.ArtifactStagingDirectory)'
-      artifact: 'jar-artifact'
-    displayName: 'Publish JAR Artifact'
+      sshEndpoint: 'Tomcat-SSH-Service'
+      sourceFolder: '$(Build.ArtifactStagingDirectory)'
+      contents: '*.war'
+      targetFolder: '/opt/tomcat/webapps'
+    displayName: 'Copy WAR to Tomcat webapps'
+
+  # Restart Tomcat
+  - task: SSH@0
+    inputs:
+      sshEndpoint: 'Tomcat-SSH-Service'
+      runOptions: 'commands'
+      command: |
+        /opt/tomcat/bin/shutdown.sh || true
+        sleep 3
+        /opt/tomcat/bin/startup.sh
+    displayName: 'Restart Tomcat'
