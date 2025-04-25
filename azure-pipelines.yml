@@ -24,7 +24,7 @@ steps:
   - task: CopyFilesOverSSH@0
     inputs:
       sshEndpoint: 'Tomcat-SSH-Service'
-      sourceFolder: '$(System.DefaultWorkingDirectory)'
+      sourceFolder: '$(Build.ArtifactStagingDirectory)'
       contents: '*.war'
       targetFolder: '/opt/tomcat/webapps'
     displayName: 'Copy WAR to Tomcat webapps'
