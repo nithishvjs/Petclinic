@@ -21,6 +21,7 @@ steps:
       sourceFolder: '$(System.DefaultWorkingDirectory)'
       contents: '**/target/*.war'
       targetFolder: '$(Build.ArtifactStagingDirectory)'
+      flattenFolders: true 
     displayName: 'Copy WAR to staging'
 
   - script: |
@@ -32,7 +33,7 @@ steps:
     inputs:
       sshEndpoint: 'Tomcat-SSH-Service'
       sourceFolder: '$(Build.ArtifactStagingDirectory)'
-      contents: '**/target/*.war'
+      contents: '*.war'
       targetFolder: '/opt/tomcat/webapps'
     displayName: 'Copy WAR to Tomcat webapps'
 
