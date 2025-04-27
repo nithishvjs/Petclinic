@@ -16,25 +16,5 @@ steps:
       ls -al $(System.DefaultWorkingDirectory)/**/target/
     displayName: '🔍 Check target contents'
 
-  - task: CopyFiles@2
-    inputs:
-      sourceFolder: '$(System.DefaultWorkingDirectory)'
-      contents: '**/target/*.war'
-      targetFolder: '$(Build.ArtifactStagingDirectory)'
-      flattenFolders: true 
-    displayName: 'Copy WAR to staging'
-
-  - script: |
-      echo "Contents of artifact staging:"
-      ls -al $(Build.ArtifactStagingDirectory)
-    displayName: '🔍 Check staging contents'
-
-  - task: CopyFilesOverSSH@0
-    inputs:
-      sshEndpoint: 'Tomcat-SSH-Service'
-      sourceFolder: '$(Build.ArtifactStagingDirectory)'
-      contents: '*.war'
-      targetFolder: '/opt/tomcat/webapps'
-    displayName: 'Copy WAR to Tomcat webapps'
 
 
