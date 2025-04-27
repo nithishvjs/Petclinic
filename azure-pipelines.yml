@@ -37,12 +37,4 @@ steps:
       targetFolder: '/opt/tomcat/webapps'
     displayName: 'Copy WAR to Tomcat webapps'
 
-  - task: SSH@0
-    inputs:
-      sshEndpoint: 'Tomcat-SSH-Service'
-      runOptions: 'commands'
-      command: |
-        /opt/tomcat/bin/shutdown.sh || true
-        sleep 3
-        /opt/tomcat/bin/startup.sh
-    displayName: 'Restart Tomcat'
+
